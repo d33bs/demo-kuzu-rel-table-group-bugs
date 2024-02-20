@@ -35,5 +35,6 @@ ignore = ["E501"]
 [tool.setuptools_scm]
 
 [tool.poe.tasks.run_demo]
+use_exec = true
 cwd = "src/demo"
 cmd = "python -c 'import demo; demo.run_create_and_copy()'"

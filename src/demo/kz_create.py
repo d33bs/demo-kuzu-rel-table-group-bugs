@@ -1,6 +1,7 @@
 import pathlib
 from typing import Dict, List, Literal, Optional
 
+import duckdb
 import kuzu
 from pyarrow import parquet
 
@@ -12,6 +13,10 @@ def generate_cypher_table_create_stmt_from_parquet_path(
     rel_table_field_mapping: Optional[List[str]] = None,
     table_pkey_parquet_field_name: str = "id",
 ):
+    """
+    Generate Kuzu Cypher statement for table creation.
+    """
+
     if pathlib.Path(parquet_path).is_dir():
         # use first file discovered as basis for schema
         parquet_path = next(pathlib.Path(parquet_path).rglob("*.parquet"))
@@ -88,13 +93,16 @@ def gather_table_names_from_parquet_path(
     parquet_path: str,
     column_with_table_name: str = "id",
 ):
-    # return distinct table types as set comprehension
-    return set(
-        # create a parquet dataset and read a single column as an array
-        parquet.ParquetDataset(parquet_path)
-        .read(columns=[column_with_table_name])[column_with_table_name]
-        .to_pylist()
-    )
+    with duckdb.connect() as ddb:
+        return [
+            element[0]
+            for element in ddb.execute(
+                f"""
+            SELECT DISTINCT {column_with_table_name}
+            FROM read_parquet('{parquet_path}')
+            """
+            ).fetchall()
+        ]
 
 
 def create_kuzu_tables(
@@ -102,6 +110,10 @@ def create_kuzu_tables(
     dataset_name_to_cypher_table_type_map: Dict[str, str],
     kz_conn: kuzu.connection.Connection,
 ):
+    """
+    Create Kuzu tables based on a Parquet dataset.
+    """
+
     for path, table_name_column, primary_key in [
         [f"{parquet_dir}/nodes", "category", "id"],
         [f"{parquet_dir}/edges", "predicate", None],
