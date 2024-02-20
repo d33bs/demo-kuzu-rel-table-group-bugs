@@ -1,15 +1,11 @@
 import pathlib
-import pathlib
 import time
-from typing import List, Literal, Optional
+from typing import Dict, List, Literal, Optional
 
 import kuzu
 from pyarrow import parquet
-from typing import Dict
-import kuzu
-from demo.operations import (
-    gather_table_names_from_parquet_path,
-)
+
+from demo.operations import gather_table_names_from_parquet_path
 
 
 def generate_cypher_table_create_stmt_from_parquet_path(
@@ -109,7 +105,6 @@ def create_kuzu_tables(
     dataset_name_to_cypher_table_type_map: Dict[str, str],
     kz_conn: kuzu.connection.Connection,
 ):
-
     for path, table_name_column, primary_key in [
         [f"{parquet_dir}/nodes", "category", "id"],
         [f"{parquet_dir}/edges", "predicate", None],

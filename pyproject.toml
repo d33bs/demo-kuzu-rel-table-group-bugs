@@ -29,10 +29,7 @@ verbose = true
 profile = "black"
 
 [tool.ruff.lint]
-select = [
-    # pycodestyle
-    "E",
-    "PL",
-]
+select = ["E","PL"]
+ignore = ["E501"]
 
 [tool.setuptools_scm]

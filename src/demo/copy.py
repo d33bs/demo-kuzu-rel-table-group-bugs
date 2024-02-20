@@ -1,11 +1,9 @@
 import pathlib
-import pathlib
 import time
 from typing import List, Literal, Optional
 
 import kuzu
 from pyarrow import parquet
-import kuzu
 
 
 def kz_execute_with_retries(
@@ -41,7 +39,6 @@ def ingest_data_to_kuzu_tables(
     kz_conn: kuzu.connection.Connection,
     dataset_name_to_cypher_table_type_map: Dict[str, str],
 ):
-
     # note: we provide specific ordering here to ensure nodes are created before edges
     table_count = 1
     sub_table_count = 1
@@ -68,7 +65,7 @@ def ingest_data_to_kuzu_tables(
                     ingest_stmt = (
                         f'COPY {table_name} FROM "{rel_node_pair}/*.parquet"'
                         if len(rel_node_pairs) == 1
-                        else f'COPY {table_name}_{rel_node_pair_name} FROM "{rel_node_pair}/*.parquet"'
+                        else f'COPY {table_name}_{rel_node_pair_name}" FROM "{rel_node_pair}/*.parquet"'
                     )
                     print(ingest_stmt)
                     print(

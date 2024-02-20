@@ -1,8 +1,10 @@
-import shutil
 import pathlib
+import shutil
+
 import kuzu
-from demo.create import create_kuzu_tables
+
 from demo.copy import ingest_data_to_kuzu_tables
+from demo.create import create_kuzu_tables
 
 
 def run_create_and_copy():
