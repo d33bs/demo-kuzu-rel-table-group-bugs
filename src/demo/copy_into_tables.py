@@ -1,12 +1,11 @@
 import pathlib
 
 import kuzu
-
 from functions import kz_execute_with_retries
 
 # set data to be used throughout notebook
 
-parquet_metanames_dir = f"data/g2c_lite_2.8.4.full.with-metanames.dataset.parquet"
+parquet_metanames_dir = "data/g2c_lite_2.8.4.full.with-metanames.dataset.parquet"
 
 kuzu_dir = parquet_metanames_dir.replace(".parquet", ".kuzu")
 
@@ -24,7 +23,6 @@ kz_conn = kuzu.Connection(db)
 table_count = 1
 sub_table_count = 1
 for path in [f"{parquet_metanames_dir}/nodes", f"{parquet_metanames_dir}/edges"]:
-
     decoded_type = dataset_name_to_cypher_table_type_map[pathlib.Path(path).name]
     print(f"Working on kuzu ingest of parquet dataset: {path} ")
     for table in pathlib.Path(path).glob("*"):

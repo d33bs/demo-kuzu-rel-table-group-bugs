@@ -1,3 +1,7 @@
+import pathlib
+import time
+from typing import List, Literal, Optional
+
 import kuzu
 from pyarrow import parquet
 
@@ -31,7 +35,6 @@ def kz_execute_with_retries(
     """
 
     while retry_count > 1:
-
         try:
             kz_conn.execute(kz_stmt)
             break
@@ -59,7 +62,6 @@ def generate_cypher_table_create_stmt_from_parquet_path(
     rel_table_field_mapping: Optional[List[str]] = None,
     table_pkey_parquet_field_name: str = "id",
 ):
-
     if pathlib.Path(parquet_path).is_dir():
         # use first file discovered as basis for schema
         parquet_path = next(pathlib.Path(parquet_path).rglob("*.parquet"))
@@ -100,7 +102,6 @@ def generate_cypher_table_create_stmt_from_parquet_path(
 
     # branch for creating node table
     if table_type == "node":
-
         if table_pkey_parquet_field_name not in [
             field.name for field in parquet_schema
         ]:

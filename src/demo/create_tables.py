@@ -1,20 +1,15 @@
 import pathlib
 import shutil
 
-from typing import List, Literal, Optional
-
-
 import kuzu
-
-from pyarrow import parquet
 from functions import (
-    generate_cypher_table_create_stmt_from_parquet_path,
     drop_table_if_exists,
     gather_table_names_from_parquet_path,
+    generate_cypher_table_create_stmt_from_parquet_path,
 )
 
 # set data to be used throughout notebook
-parquet_metanames_dir = f"data/g2c_lite_2.8.4.full.with-metanames.dataset.parquet"
+parquet_metanames_dir = "data/g2c_lite_2.8.4.full.with-metanames.dataset.parquet"
 
 kuzu_dir = parquet_metanames_dir.replace(".parquet", ".kuzu")
 
@@ -39,7 +34,6 @@ for path, table_name_column, primary_key in [
     [f"{parquet_metanames_dir}/nodes", "category", "id"],
     [f"{parquet_metanames_dir}/edges", "predicate", None],
 ]:
-
     decoded_type = dataset_name_to_cypher_table_type_map[pathlib.Path(path).name]
 
     for table_name in gather_table_names_from_parquet_path(
@@ -59,7 +53,6 @@ for path, table_name_column, primary_key in [
                 table_pkey_parquet_field_name=primary_key,
             )
         elif decoded_type == "rel":
-
             create_stmt = generate_cypher_table_create_stmt_from_parquet_path(
                 parquet_path=parquet_metanames_metaname_base,
                 table_type=decoded_type,
