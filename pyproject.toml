@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "demo-kuzu-rel-table-group-potential-bugs"
+version = "0.0.1"
+description = "Demonstrating various potential bugs with Kuzu REL Table Groups."
+authors = ["d33bs"]
+license = "BSD-3-Clause"
+readme = "README.md"
+packages = [{include = "demo", from="src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+poetry = "^1.7.1"
+pyarrow = "^15.0.0"
+kuzu = "^0.2.0"
+poethepoet = "^0.24.4"
+duckdb = "^0.10.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.vulture]
+min_confidence = 80
+paths = ["src/demo"]
+sort_by_size = true
+verbose = true
+
+[tool.isort]
+profile = "black"
+
+[tool.ruff.lint]
+select = ["E","PL"]
+ignore = ["E501"]
+
+[tool.setuptools_scm]
+
+[tool.poe.tasks.run_demo]
+# runs demo of potential bugs
+use_exec = true
+cwd = "src/demo"
+cmd = "python -c 'import demo; demo.run_create_and_copy()'"
