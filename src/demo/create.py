@@ -1,11 +1,8 @@
 import pathlib
-import time
 from typing import Dict, List, Literal, Optional
 
 import kuzu
 from pyarrow import parquet
-
-from demo.operations import gather_table_names_from_parquet_path
 
 
 def generate_cypher_table_create_stmt_from_parquet_path(

@@ -9,7 +9,7 @@ from demo.create import create_kuzu_tables
 
 def run_create_and_copy():
     # set data to be used throughout notebook
-    parquet_dir = "data/g2c_lite_2.8.4.full.with-metanames.dataset.parquet"
+    parquet_dir = "data/kg2c_lite_2.8.4.sample.dataset.parquet"
 
     kuzu_dir = parquet_dir.replace(".parquet", ".kuzu")
 
