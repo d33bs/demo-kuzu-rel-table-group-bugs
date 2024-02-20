@@ -28,4 +28,11 @@ verbose = true
 [tool.isort]
 profile = "black"
 
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    "PL",
+]
+
 [tool.setuptools_scm]

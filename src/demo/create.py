@@ -1,58 +1,15 @@
 import pathlib
+import pathlib
 import time
 from typing import List, Literal, Optional
 
 import kuzu
 from pyarrow import parquet
-
-
-def drop_table_if_exists(kz_conn: kuzu.connection.Connection, table_name: str):
-    try:
-        kz_conn.execute(f"DROP TABLE {table_name}")
-    except Exception as e:
-        print(e)
-        print("Warning: no need to drop table.")
-
-
-def gather_table_names_from_parquet_path(
-    parquet_path: str,
-    column_with_table_name: str = "id",
-):
-    # return distinct table types as set comprehension
-    return set(
-        # create a parquet dataset and read a single column as an array
-        parquet.ParquetDataset(parquet_path)
-        .read(columns=[column_with_table_name])[column_with_table_name]
-        .to_pylist()
-    )
-
-
-def kz_execute_with_retries(
-    kz_conn: kuzu.connection.Connection, kz_stmt: str, retry_count: int = 5
-):
-    """
-    Retry running a kuzu execution up to retry_count number of times.
-    """
-
-    while retry_count > 1:
-        try:
-            kz_conn.execute(kz_stmt)
-            break
-        except RuntimeError as runexc:
-            # catch previous copy work and immediately move on
-            if (
-                str(runexc)
-                == "Copy exception: COPY commands can only be executed once on a table."
-            ):
-                print(runexc)
-                break
-            elif "Unable to find primary key value" in str(runexc):
-                print(f"Retrying after primary key exception: {runexc}")
-                # wait a half second before attempting again
-                time.sleep(0.5)
-                retry_count -= 1
-            else:
-                raise
+from typing import Dict
+import kuzu
+from demo.operations import (
+    gather_table_names_from_parquet_path,
+)
 
 
 def generate_cypher_table_create_stmt_from_parquet_path(
@@ -106,7 +63,8 @@ def generate_cypher_table_create_stmt_from_parquet_path(
             field.name for field in parquet_schema
         ]:
             raise LookupError(
-                f"Unable to find field {table_pkey_parquet_field_name} in parquet file {parquet_path}."
+                f"Unable to find field {table_pkey_parquet_field_name}"
+                " in parquet file {parquet_path}."
             )
 
         return (
@@ -131,3 +89,62 @@ def generate_cypher_table_create_stmt_from_parquet_path(
     )
 
     return f"{rel_tbl_start} ({subj_and_objs}, {cypher_fields_from_parquet_schema})"
+
+
+def gather_table_names_from_parquet_path(
+    parquet_path: str,
+    column_with_table_name: str = "id",
+):
+    # return distinct table types as set comprehension
+    return set(
+        # create a parquet dataset and read a single column as an array
+        parquet.ParquetDataset(parquet_path)
+        .read(columns=[column_with_table_name])[column_with_table_name]
+        .to_pylist()
+    )
+
+
+def create_kuzu_tables(
+    parquet_dir: str,
+    dataset_name_to_cypher_table_type_map: Dict[str, str],
+    kz_conn: kuzu.connection.Connection,
+):
+
+    for path, table_name_column, primary_key in [
+        [f"{parquet_dir}/nodes", "category", "id"],
+        [f"{parquet_dir}/edges", "predicate", None],
+    ]:
+        decoded_type = dataset_name_to_cypher_table_type_map[pathlib.Path(path).name]
+
+        for table_name in gather_table_names_from_parquet_path(
+            parquet_path=f"{path}/**", column_with_table_name=table_name_column
+        ):
+            # create metanames / objects using cypher safe name and dir
+            cypher_safe_table_name = table_name.split(":")[1]
+            parquet_metanames_metaname_base = f"{path}/{cypher_safe_table_name}"
+
+            if decoded_type == "node":
+                create_stmt = generate_cypher_table_create_stmt_from_parquet_path(
+                    parquet_path=parquet_metanames_metaname_base,
+                    table_type=decoded_type,
+                    table_name=cypher_safe_table_name,
+                    table_pkey_parquet_field_name=primary_key,
+                )
+            elif decoded_type == "rel":
+                create_stmt = generate_cypher_table_create_stmt_from_parquet_path(
+                    parquet_path=parquet_metanames_metaname_base,
+                    table_type=decoded_type,
+                    table_name=cypher_safe_table_name,
+                    table_pkey_parquet_field_name=primary_key,
+                    rel_table_field_mapping=[
+                        str(pathlib.Path(element).name).split("_")
+                        for element in list(
+                            pathlib.Path(parquet_metanames_metaname_base).glob("*")
+                        )
+                    ],
+                )
+
+            print(
+                f"Using the following create statement to create table:\n\n{create_stmt}\n\n"
+            )
+            kz_conn.execute(create_stmt)
