@@ -23,6 +23,6 @@ For example, use the following to run the `run_demo` task:
 poetry run poe run_demo
 ```
 
-## Data Acknowledgement
+## Citation and Acknowledgements
 
-Data found within this repo is a modified version of [RTX-KG2](https://github.com/RTXteam/RTX-KG2) data which was published at the [NCATS Biomedical Data Translator repository](https://github.com/ncats/translator-lfs-artifacts). Special thanks goes to RTX researchers, developers, and those related to support for the data.
+Data found within this repo is a modified version of [RTX-KG2](https://github.com/RTXteam/RTX-KG2) data which was published at the [NCATS Biomedical Data Translator repository](https://github.com/ncats/translator-lfs-artifacts). Special thanks goes to those mentioned in the [RTX-KG2 credits](https://github.com/RTXteam/RTX-KG2?tab=readme-ov-file#credits). Further data acknowledgments may be found within the [data sources documentation](https://github.com/RTXteam/RTX-KG2?tab=readme-ov-file#what-data-sources-are-used-in-kg2).
