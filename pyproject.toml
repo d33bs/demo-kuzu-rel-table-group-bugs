@@ -33,3 +33,7 @@ select = ["E","PL"]
 ignore = ["E501"]
 
 [tool.setuptools_scm]
+
+[tool.poe.tasks.run_demo]
+cwd = "src/demo"
+cmd = "python -c 'import demo; demo.run_create_and_copy()'"
