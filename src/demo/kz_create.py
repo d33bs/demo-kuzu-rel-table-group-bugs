@@ -1,3 +1,7 @@
+"""
+Work towards Kuzu table data ingest (COPY) based on Parquet datasets.
+"""
+
 import pathlib
 from typing import Dict, List, Literal, Optional
 

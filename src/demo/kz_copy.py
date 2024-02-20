@@ -1,3 +1,7 @@
+"""
+Work towards Kuzu table creation based on Parquet datasets.
+"""
+
 import pathlib
 import time
 
@@ -17,13 +21,7 @@ def kz_execute_with_retries(
             break
         except RuntimeError as runexc:
             # catch previous copy work and immediately move on
-            if (
-                str(runexc)
-                == "Copy exception: COPY commands can only be executed once on a table."
-            ):
-                print(runexc)
-                break
-            elif "Unable to find primary key value" in str(runexc):
+            if "Unable to find primary key value" in str(runexc):
                 print(f"Retrying after primary key exception: {runexc}")
                 # wait a half second before attempting again
                 time.sleep(0.5)

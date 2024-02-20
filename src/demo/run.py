@@ -1,3 +1,7 @@
+"""
+Work towards running a demo of Kuzu with Parquet datasets and REL GROUP's.
+"""
+
 import pathlib
 import shutil
 
